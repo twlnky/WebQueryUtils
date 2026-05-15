@@ -3,7 +3,7 @@ package nips.dev.springqueryutils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "nips.dev.springqueryutils")
 public class SpringQueryUtilsApplication {
 
     public static void main(String[] args) {

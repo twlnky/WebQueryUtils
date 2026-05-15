@@ -12,5 +12,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface FilterFieldAllies {
     String value() default "";
+    String alias() default "";
     SqlOperator operator() default SqlOperator.EQUALS;
 }

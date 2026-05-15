@@ -11,15 +11,14 @@ public class DriverUtils {
         try {
             Enumeration<Driver> drivers = DriverManager.getDrivers();
             while (drivers.hasMoreElements()) {
-                java.sql.Driver driver = drivers.nextElement();
-                for (DatabaseType type : DatabaseType.values()) {
-                    if (type != DatabaseType.OTHER &&
-                            driver.getClass().getName().equals(type.getDriverClass())) {
-                        return type;
-                    }
+                Driver driver = drivers.nextElement();
+                DatabaseType registered = DatabaseType.fromDriverClass(driver.getClass().getName());
+                if (registered != DatabaseType.OTHER) {
+                    return registered;
                 }
             }
-        } catch (Exception ignore) {
+        } catch (Exception ignored) {
+            // fall through to classpath probe
         }
 
         for (DatabaseType type : DatabaseType.values()) {
@@ -53,9 +52,9 @@ public class DriverUtils {
     public static void printAvailableDrivers() {
         try {
             System.out.println("Available JDBC Drivers:");
-            Enumeration<java.sql.Driver> drivers = DriverManager.getDrivers();
+            Enumeration<Driver> drivers = DriverManager.getDrivers();
             while (drivers.hasMoreElements()) {
-                java.sql.Driver driver = drivers.nextElement();
+                Driver driver = drivers.nextElement();
                 System.out.println(" - " + driver.getClass().getName());
             }
         } catch (Exception e) {
