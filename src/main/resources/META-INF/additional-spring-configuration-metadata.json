@@ -1,0 +1,22 @@
+{
+  "properties": [
+    {
+      "name": "spring.query-utils.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable Spring Query Utils auto-configuration.",
+      "defaultValue": true
+    },
+    {
+      "name": "spring.query-utils.max-page-size",
+      "type": "java.lang.Integer",
+      "description": "Upper bound for list page size.",
+      "defaultValue": 100
+    },
+    {
+      "name": "spring.query-utils.exception-handler-enabled",
+      "type": "java.lang.Boolean",
+      "description": "Register RestExceptionHandler for ProblemDetail responses.",
+      "defaultValue": true
+    }
+  ]
+}

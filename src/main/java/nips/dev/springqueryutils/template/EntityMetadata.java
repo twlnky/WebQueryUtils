@@ -5,15 +5,25 @@ import nips.dev.springqueryutils.annotatons.FilterFieldAllies;
 import nips.dev.springqueryutils.annotatons.SoftDeleteFlag;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+/**
+ * Один раз смотрит на entity и запоминает: где {@link Id}, есть ли soft delete, какие поля можно
+ * фильтровать и по каким сортировать.
+ *
+ * <p>Создаётся внутри {@link AbstractCRUDLService} при старте сервиса — на каждый HTTP-запрос
+ * reflection заново не гоняется. В list попадают только поля с {@link FilterFieldAllies}.
+ *
+ * @param <M> ваша entity
+ * @author nip
+ * @since 0.0.1
+ */
 public final class EntityMetadata<M> {
 
-    private static final int DEFAULT_MAX_PAGE_SIZE = 100;
+    /**
+     * Лимит {@code size}, если в properties не задали {@code spring.query-utils.max-page-size}.
+     */
+    public static final int DEFAULT_MAX_PAGE_SIZE = 100;
 
     private final Class<M> entityClass;
     private final Field idField;
@@ -38,6 +48,11 @@ public final class EntityMetadata<M> {
         this.sortKeyToProperty = sortKeyToProperty;
     }
 
+    /**
+     * Разбирает класс entity. Вызывать можно и вручную, если нужен только {@link FilterSpecificationBuilder}.
+     *
+     * @throws IllegalStateException если на entity нет поля с {@link Id}
+     */
     public static <M> EntityMetadata<M> of(Class<M> entityClass) {
         Field idField = findIdField(entityClass);
         idField.setAccessible(true);

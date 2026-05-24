@@ -4,6 +4,14 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.util.Enumeration;
 
+/**
+ * Утилита «какой JDBC-драйвер сейчас в classpath» — для отладки, не для бизнес-логики.
+ *
+ * <p>{@link nips.dev.springqueryutils.template.AbstractCRUDLService} это не вызывает.
+ *
+ * @author nip
+ * @since 0.0.1
+ */
 public class DriverUtils {
 
 

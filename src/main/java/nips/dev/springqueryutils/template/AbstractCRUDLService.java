@@ -1,10 +1,12 @@
 package nips.dev.springqueryutils.template;
 
 import jakarta.persistence.EntityManager;
+import nips.dev.springqueryutils.autoconfigure.SpringQueryUtilsProperties;
 import nips.dev.springqueryutils.dto.DtoMapper;
 import nips.dev.springqueryutils.exсeption.ResourceNotFoundException;
 import nips.dev.springqueryutils.exсeption.ValidationException;
 import nips.dev.springqueryutils.query.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -14,6 +16,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Готовый каркас сервиса: create, getById, update, delete и list с фильтрами.
+ *
+ * <p>Наследуетесь, передаёте в конструктор repository (обязательно с {@link JpaSpecificationExecutor}),
+ * {@link DtoMapper}, {@link EntityManager} и класс entity. Метод {@code list} понимает строки вида
+ * {@code itemName:LIKE:test} — см. {@link FilterSpecificationBuilder}.
+ *
+ * <p>Если на entity есть {@link nips.dev.springqueryutils.annotatons.SoftDeleteFlag}, то {@code delete}
+ * не удаляет строку из БД, а помечает флагом; {@code getById} и {@code list} такие записи не видят.
+ *
+ * @param <M>  ваша JPA entity
+ * @param <ID> тип id
+ * @param <R>  ваш {@code XxxRepository}
+ * @author nip
+ * @since 0.0.1
+ */
 public abstract class AbstractCRUDLService<M, ID, R extends JpaRepository<M, ID> & JpaSpecificationExecutor<M>> {
 
     protected final R repository;
@@ -22,6 +40,15 @@ public abstract class AbstractCRUDLService<M, ID, R extends JpaRepository<M, ID>
     protected final Class<M> modelClass;
     private final EntityMetadata<M> metadata;
 
+    @Autowired(required = false)
+    private SpringQueryUtilsProperties queryUtilsProperties;
+
+    /**
+     * @param repository    ваш Spring Data repository
+     * @param dtoMapper     bean из starter'а (собирает все {@link EntityDtoMapper})
+     * @param entityManager стандартный JPA {@link EntityManager}
+     * @param modelClass    класс entity, по нему один раз строится {@link EntityMetadata}
+     */
     protected AbstractCRUDLService(R repository, DtoMapper dtoMapper, EntityManager entityManager, Class<M> modelClass) {
         this.repository = repository;
         this.dtoMapper = dtoMapper;
@@ -131,10 +158,9 @@ public abstract class AbstractCRUDLService<M, ID, R extends JpaRepository<M, ID>
         if (size < 1) {
             throw new ValidationException("Page size must be >= 1");
         }
-        if (size > EntityMetadata.getDefaultMaxPageSize()) {
-            throw new ValidationException(
-                    "Page size must not exceed " + EntityMetadata.getDefaultMaxPageSize()
-            );
+        int maxPageSize = resolveMaxPageSize();
+        if (size > maxPageSize) {
+            throw new ValidationException("Page size must not exceed " + maxPageSize);
         }
 
         org.springframework.data.domain.Sort springSort = org.springframework.data.domain.Sort.unsorted();
@@ -195,5 +221,12 @@ public abstract class AbstractCRUDLService<M, ID, R extends JpaRepository<M, ID>
 
     protected EntityMetadata<M> getMetadata() {
         return metadata;
+    }
+
+    protected int resolveMaxPageSize() {
+        if (queryUtilsProperties != null) {
+            return queryUtilsProperties.getMaxPageSize();
+        }
+        return EntityMetadata.DEFAULT_MAX_PAGE_SIZE;
     }
 }

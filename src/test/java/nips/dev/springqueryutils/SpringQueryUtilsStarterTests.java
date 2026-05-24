@@ -1,0 +1,20 @@
+package nips.dev.springqueryutils;
+
+import nips.dev.springqueryutils.dto.DtoMapper;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@SpringBootTest(classes = TestApplication.class)
+class SpringQueryUtilsStarterTests {
+
+    @Autowired
+    private DtoMapper dtoMapper;
+
+    @Test
+    void autoConfigurationRegistersDtoMapper() {
+        assertThat(dtoMapper).isNotNull();
+    }
+}

@@ -18,15 +18,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Собирает JPA {@link Specification} из строк фильтра с API.
+ *
+ * <p>Формат одной строки: {@code поле:ОПЕРАТОР:значение}. Режем по первым двум {@code :}, всё после второго —
+ * это value (в value могут быть свои двоеточия). Несколько строк в {@link Filter} — всегда AND, не OR.
+ *
+ * <p>Имя поля должно быть в whitelist entity (см. {@link EntityMetadata}). Иначе — {@link nips.dev.springqueryutils.exсeption.ValidationException}.
+ *
+ * @author nip
+ * @since 0.0.1
+ */
 public class FilterSpecificationBuilder {
 
     private FilterSpecificationBuilder() {
     }
 
+    /**
+     * Удобно для тестов: передаёте класс entity, метаданные соберутся сами.
+     */
     public static <T> Specification<T> build(Filter filter, Class<T> entityClass) {
         return build(filter, EntityMetadata.of(entityClass));
     }
 
+    /** То же, что {@link #build(Filter, Class)}, но метаданные уже есть (как в {@link AbstractCRUDLService}). */
     public static <T> Specification<T> build(Filter filter, EntityMetadata<T> metadata) {
         if (filter == null || filter.getFilter() == null || filter.getFilter().isEmpty()) {
             return (root, query, cb) -> null;

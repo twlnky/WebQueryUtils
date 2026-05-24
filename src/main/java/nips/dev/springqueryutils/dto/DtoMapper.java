@@ -1,17 +1,29 @@
 package nips.dev.springqueryutils.dto;
 
 import nips.dev.springqueryutils.exсeption.ValidationException;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
+/**
+ * Выбирает нужный MapStruct-маппер по паре entity + DTO.
+ *
+ * <p>Bean создаётся starter'ом. В приложении заводите интерфейс
+ * {@code @Mapper(componentModel = "spring")}, который extends {@link EntityDtoMapper}.
+ * Забыли маппер — получите {@link nips.dev.springqueryutils.exсeption.ValidationException} с текстом, что именно не зарегистрировано.
+ *
+ * @author nip
+ * @since 0.0.1
+ */
 public class DtoMapper {
 
     private final Map<MappingKey, EntityDtoMapper<?, ?>> mappers;
 
+    /**
+     * @param mapperList все {@link EntityDtoMapper} из Spring
+     * @throws IllegalStateException два маппера на одну и ту же пару типов
+     */
     public DtoMapper(List<EntityDtoMapper<?, ?>> mapperList) {
         Map<MappingKey, EntityDtoMapper<?, ?>> registry = new HashMap<>();
         for (EntityDtoMapper<?, ?> mapper : mapperList) {
@@ -33,6 +45,7 @@ public class DtoMapper {
         EntityDtoMapper<M, D> mapper = resolveMapper((Class<M>) model.getClass(), dtoClass);
         return mapper.toDto(model);
     }
+
 
     @SuppressWarnings("unchecked")
     public <M, D> List<D> toDto(List<M> models, Class<D> dtoClass) {

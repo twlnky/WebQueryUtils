@@ -2,6 +2,12 @@ package nips.dev.springqueryutils.query;
 
 import lombok.Getter;
 
+/**
+ * Тип БД по имени JDBC-драйвера. Нужен только {@link DriverUtils}, на CRUD не влияет.
+ *
+ * @author nip
+ * @since 0.0.1
+ */
 @Getter
 public enum DatabaseType {
     POSTGRESQL("org.postgresql.Driver"),
